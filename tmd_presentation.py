@@ -12,7 +12,11 @@ from urllib.request import urlopen, Request
 
 
 class TmdPresentation:
-    def __init__(self, data: dict):
+    def __init__(self, data_file: str, cloud=True):
+        self.data_loaded = False
+        self.data_file = data_file
+        self.cloud = cloud
+
         # figure
         self.fig_main = []
         self.fig_bands = []
@@ -29,7 +33,7 @@ class TmdPresentation:
         self.ax_bands = []
 
         # data
-        self.data = data
+        self.data = {}
         self.u_xx = 0.
         self.u_yy = 0.
         self.u_xy = 0.
@@ -37,20 +41,6 @@ class TmdPresentation:
         self.zero = False
         self.biaxial = False
 
-        self.u_xx_lims = (np.min([np.min(self.data[name]["u"][:, 0]) for name in [*self.data]]),
-                          np.max([np.max(self.data[name]["u"][:, 0]) for name in [*self.data]]))
-
-        self.u_yy_lims = (np.min([np.min(self.data[name]["u"][:, 1]) for name in [*self.data]]),
-                          np.max([np.max(self.data[name]["u"][:, 1]) for name in [*self.data]]))
-
-        self.u_xy_lims = (np.min([np.min(self.data[name]["u"][:, 2]) for name in [*self.data]]),
-                          np.max([np.max(self.data[name]["u"][:, 2]) for name in [*self.data]]))
-        self.k_path = self.k_path_as_1d(self.data[self.name]["k_path"])
-        self.k_path_points = self.k_path[self.data[self.name]["k_path_point_indices"]]
-
-        self.max_k = np.max([self.data[name]["k_path_point_indices"][-1] for name in [*self.data]]) - 1
-        self.x_range = [0, self.max_k]
-        self.y_range = [-12., 0.]
         # widget layout
         self.bl_margin = 0.05
         self.bl_h_dist = 0.05
@@ -77,7 +67,7 @@ class TmdPresentation:
             self.fig_bands = plt.figure(self.fig_label_bands)
             self.ax_bands = self.fig_bands.add_subplot()
             self.fig_bands.canvas.mpl_connect('close_event', self.call_close_bands)
-            self.plot_bands()
+            self.ax_bands.text(0, 0, "Click a button to start.")
 
     def gui(self):
         if plt.fignum_exists(self.fig_label_main):
@@ -90,8 +80,8 @@ class TmdPresentation:
             ax=self.fig_main.add_axes([.28, self.bl_margin + 10 * self.bl_h_heig, .4, self.bl_h_hdis]),
             label=r"$x_{scale}$",
             valmin=0,
-            valmax=self.max_k,
-            valinit=(0, self.max_k),
+            valmax=1,
+            valinit=(0, 1),
             valfmt="%d",
             orientation="horizontal"
         )
@@ -107,8 +97,8 @@ class TmdPresentation:
         self.b_slider_uxx = Slider(
             ax=self.fig_main.add_axes([.28, self.bl_margin + 8 * self.bl_h_heig, .45, self.bl_h_hdis]),
             label=r"$u_{xx}$ (%)",
-            valmin=self.u_xx_lims[0],
-            valmax=self.u_xx_lims[1],
+            valmin=0,
+            valmax=0.0001,
             valinit=self.u_xx,
             valfmt="%+.3f",
             orientation="horizontal"
@@ -116,8 +106,8 @@ class TmdPresentation:
         self.b_slider_uyy = Slider(
             ax=self.fig_main.add_axes([.28, self.bl_margin + 7 * self.bl_h_heig, .45, self.bl_h_hdis]),
             label=r"$u_{yy}$ (%)",
-            valmin=self.u_yy_lims[0],
-            valmax=self.u_yy_lims[1],
+            valmin=0,
+            valmax=0.0001,
             valinit=self.u_yy,
             valfmt="%+.3f",
             orientation="horizontal"
@@ -125,8 +115,8 @@ class TmdPresentation:
         self.b_slider_uxy = Slider(
             ax=self.fig_main.add_axes([.28, self.bl_margin + 6 * self.bl_h_heig, .45, self.bl_h_hdis]),
             label=r"$u_{xy}$ (%)",
-            valmin=self.u_xy_lims[0],
-            valmax=self.u_xy_lims[1],
+            valmin=0,
+            valmax=0.0001,
             valinit=self.u_xy,
             valfmt="%+.3f",
             orientation="horizontal"
@@ -237,6 +227,42 @@ class TmdPresentation:
 
     def plot_bands(self):
         self.show_bands_figure()
+        if not self.data_loaded:
+            if self.cloud:
+                self.data = cloudpickle.load(urlopen(Request(self.data_file)))
+            else:
+                self.data = pickle.load(open(self.data_file, 'rb'))
+
+            self.u_xx_lims = (np.min([np.min(self.data[name]["u"][:, 0]) for name in [*self.data]]),
+                              np.max([np.max(self.data[name]["u"][:, 0]) for name in [*self.data]]))
+
+            self.u_yy_lims = (np.min([np.min(self.data[name]["u"][:, 1]) for name in [*self.data]]),
+                              np.max([np.max(self.data[name]["u"][:, 1]) for name in [*self.data]]))
+
+            self.u_xy_lims = (np.min([np.min(self.data[name]["u"][:, 2]) for name in [*self.data]]),
+                              np.max([np.max(self.data[name]["u"][:, 2]) for name in [*self.data]]))
+            self.k_path = self.k_path_as_1d(self.data[self.name]["k_path"])
+            self.k_path_points = self.k_path[self.data[self.name]["k_path_point_indices"]]
+
+            self.max_k = np.max([self.data[name]["k_path_point_indices"][-1] for name in [*self.data]]) - 1
+            self.x_range = [0, self.max_k]
+            self.y_range = [-12., 0.]
+
+            self.b_slider_uxx.valmin, self.b_slider_uxx.valmax = self.u_xx_lims
+            self.b_slider_uyy.valmin, self.b_slider_uyy.valmax = self.u_yy_lims
+            self.b_slider_uxy.valmin, self.b_slider_uxy.valmax = self.u_xy_lims
+            self.b_slider_uxx.ax.set_xlim(self.b_slider_uxx.valmin, self.b_slider_uxx.valmax)
+            self.b_slider_uyy.ax.set_xlim(self.b_slider_uyy.valmin, self.b_slider_uyy.valmax)
+            self.b_slider_uxy.ax.set_xlim(self.b_slider_uxy.valmin, self.b_slider_uxy.valmax)
+
+            self.b_xslider.valmin, self.b_xslider.valmax = self.x_range
+            self.b_yslider.valmin, self.b_yslider.valmax = self.y_range
+            self.b_xslider.ax.set_xlim(self.x_range)
+            self.b_yslider.ax.set_xlim(self.y_range)
+            self.b_xslider.val = (self.x_range[0], self.x_range[1])
+            self.b_yslider.val = (self.y_range[0], self.y_range[1])
+            self.data_loaded = True
+
         self.ax_bands.cla()
         idx = self.find_nearest(self.u_xx, self.u_yy, self.u_xy)
         u_loc = self.data[self.name]["u"][idx]
@@ -278,5 +304,4 @@ class TmdPresentation:
 
 
 def run_script():
-    return TmdPresentation(cloudpickle.load(urlopen(Request("https://bertjorissen.be/bands.pickle"))))
-    # return TmdPresentation(pickle.load(open('bands.pickle', 'rb')))
+    return TmdPresentation(data_file="http://nc.tfm.uantwerpen.be/s/HJRpRTTssAKM67P/download/bands.pickle", cloud=True)
