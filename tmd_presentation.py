@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Slider, CheckButtons, Button, RadioButtons, RangeSlider
 import cloudpickle
+import pickle
 from urllib.request import urlopen, Request
 
 
@@ -158,9 +159,6 @@ class TmdPresentation:
 
         # call the bands figure
         self.show_bands_figure()
-        plt.pause(0.1)
-        self.fig_main.canvas.draw()
-        plt.show()
 
     def call_close_main(self, event):
         self.fig_main = []
@@ -281,3 +279,4 @@ class TmdPresentation:
 
 def run_script():
     return TmdPresentation(cloudpickle.load(urlopen(Request("https://bertjorissen.be/bands.pickle"))))
+    # return TmdPresentation(pickle.load(open('bands.pickle', 'rb')))

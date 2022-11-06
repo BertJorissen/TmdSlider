@@ -1,0 +1,12 @@
+name: tmd-slider
+channels:
+- conda-forge
+dependencies:
+- python-3.9
+- matplotlib-base
+- numpy
+- matplotlib
+- cloudpickle
+- ipympl
+- jupyterlab
+- voila
