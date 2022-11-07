@@ -5,8 +5,6 @@ dependencies:
 - python=3.9
 - matplotlib-base
 - numpy
-- matplotlib
 - cloudpickle
-- ipympl
-- jupyterlab
-- voila
+- jupyterlab>=3.1
+- voila>=0.2.11
