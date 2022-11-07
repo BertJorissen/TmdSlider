@@ -231,7 +231,7 @@ class TmdPresentation:
             self.ax_bands.cla()
             self.ax_bands.text(0, .2, "Data is being loaded..... (this can take a minute)", color="C2")
             plt.draw()
-            plt.pause(0.1)
+            plt.pause(0.5)
             if self.cloud:
                 self.data = cloudpickle.load(urlopen(Request(self.data_file)))
             else:
