@@ -228,6 +228,10 @@ class TmdPresentation:
     def plot_bands(self):
         self.show_bands_figure()
         if not self.data_loaded:
+            self.ax_bands.cla()
+            self.ax_bands.text(0, .2, "Data is being loaded..... (this can take a minute)", color="C2")
+            plt.draw()
+            plt.pause(0.1)
             if self.cloud:
                 self.data = cloudpickle.load(urlopen(Request(self.data_file)))
             else:
@@ -305,3 +309,7 @@ class TmdPresentation:
 
 def run_script():
     return TmdPresentation(data_file="http://nc.tfm.uantwerpen.be/s/HJRpRTTssAKM67P/download/bands.pickle", cloud=True)
+
+
+if __name__ == "__main__":
+    run_script()
