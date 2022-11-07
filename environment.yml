@@ -1,4 +1,4 @@
-name: tmd-slider
+name: voila-gallery-country-indicators
 channels:
 - conda-forge
 dependencies:
