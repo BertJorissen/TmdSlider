@@ -10,3 +10,4 @@ dependencies:
 - ipympl
 - jupyterlab
 - voila
+- jupyter_contrib_nbextensions
