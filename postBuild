@@ -1,2 +1,2 @@
-jupyter labextension install -y @voila-dashboards/jupyterlab-preview
-jupyter labextension enable @voila-dashboards/jupyterlab-preview
+jupyter labextension install @voila-dashboards/jupyterlab-preview --no-build
+jupyter lab build
