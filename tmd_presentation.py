@@ -228,6 +228,8 @@ class TmdPresentation:
         self._b_slider_uyy.reset()
         self._b_slider_uxy.reset()
         self._u = np.array([0., 0., 0.])
+        self._b_xslider.reset()
+        self._b_yslider.reset()
         self._plot_bands()
 
     def _call_name(self, name):

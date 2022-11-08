@@ -1,5 +1,5 @@
 # TMD Slider
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BertJorissen/TmdSlider/HEAD?labpath=voila%2Frender%2Fnotebook.ipynd)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BertJorissen/TmdSlider/HEAD?urlpath=voila%2Frender%2Fnotebook.ipynb)
 
 See the TMD results, click on the above Binder.
 
